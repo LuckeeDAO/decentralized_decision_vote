@@ -1,0 +1,28 @@
+[package]
+name = "vote-api"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Vote API service for the decentralized decision vote system"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-config = { path = "../../shared/config" }
+shared-logging = { path = "../../shared/logging" }
+vote-engine = { path = "../../core/vote-engine" }
+template-system = { path = "../../core/template-system" }
+commitment-engine = { path = "../../core/commitment-engine" }
+vote-store = { path = "../../storage/vote-store" }
+
+axum = { workspace = true }
+tokio = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }

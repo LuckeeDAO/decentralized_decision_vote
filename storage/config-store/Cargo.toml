@@ -1,0 +1,39 @@
+[package]
+name = "config-store"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Configuration storage for the decentralized decision vote system"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-config = { path = "../../shared/config" }
+
+# Async runtime
+async-trait = { workspace = true }
+tokio = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Time
+chrono = { workspace = true, features = ["serde"] }
+
+# UUID
+uuid = { workspace = true, features = ["v4", "serde"] }
+
+# File watching
+notify = "6.1"
+
+# File system
+tempfile = "3.8"

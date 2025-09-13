@@ -1,0 +1,274 @@
+# Prometheus alerting rules for decentralized decision vote system
+
+groups:
+  - name: ddv.rules
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.instance }}"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.instance }}"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down on {{ $labels.instance }}"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Database connection high
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_database_numbackends / pg_settings_max_connections * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connections"
+          description: "Database connections are {{ $value }}% of max on {{ $labels.instance }}"
+
+      # Redis memory usage high
+      - alert: RedisMemoryUsageHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Pod restarting frequently
+      - alert: PodRestartingFrequently
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod restarting frequently"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently"
+
+      # Pod not ready
+      - alert: PodNotReady
+        expr: kube_pod_status_phase{phase!="Running"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod not ready"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is not ready"
+
+      # Deployment not available
+      - alert: DeploymentNotAvailable
+        expr: kube_deployment_status_replicas_available / kube_deployment_spec_replicas < 0.5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Deployment not available"
+          description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has less than 50% available replicas"
+
+      # High queue length
+      - alert: HighQueueLength
+        expr: ddv_queue_length > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High queue length"
+          description: "Queue length is {{ $value }} for {{ $labels.queue_name }}"
+
+      # Session creation rate low
+      - alert: LowSessionCreationRate
+        expr: rate(ddv_sessions_created_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low session creation rate"
+          description: "Session creation rate is {{ $value }} per second"
+
+      # Commitment submission rate low
+      - alert: LowCommitmentSubmissionRate
+        expr: rate(ddv_commitments_submitted_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low commitment submission rate"
+          description: "Commitment submission rate is {{ $value }} per second"
+
+      # Reveal completion rate low
+      - alert: LowRevealCompletionRate
+        expr: rate(ddv_reveals_completed_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low reveal completion rate"
+          description: "Reveal completion rate is {{ $value }} per second"
+
+      # Result generation rate low
+      - alert: LowResultGenerationRate
+        expr: rate(ddv_results_generated_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low result generation rate"
+          description: "Result generation rate is {{ $value }} per second"
+
+      # Notification delivery failure rate high
+      - alert: HighNotificationDeliveryFailureRate
+        expr: rate(ddv_notifications_failed_total[5m]) / rate(ddv_notifications_sent_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High notification delivery failure rate"
+          description: "Notification delivery failure rate is {{ $value | humanizePercentage }}"
+
+      # WebSocket connection failures
+      - alert: WebSocketConnectionFailures
+        expr: rate(ddv_websocket_connection_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket connection failures"
+          description: "WebSocket connection failure rate is {{ $value }} per second"
+
+      # Configuration update failures
+      - alert: ConfigurationUpdateFailures
+        expr: rate(ddv_config_updates_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Configuration update failures"
+          description: "Configuration update failure rate is {{ $value }} per second"
+
+      # Event processing lag
+      - alert: EventProcessingLag
+        expr: ddv_event_processing_lag_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Event processing lag"
+          description: "Event processing lag is {{ $value }} seconds for {{ $labels.event_type }}"
+
+      # Cache hit rate low
+      - alert: LowCacheHitRate
+        expr: rate(ddv_cache_hits_total[5m]) / (rate(ddv_cache_hits_total[5m]) + rate(ddv_cache_misses_total[5m])) < 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} for {{ $labels.cache_name }}"
+
+      # Database query time high
+      - alert: HighDatabaseQueryTime
+        expr: histogram_quantile(0.95, rate(ddv_database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database query time"
+          description: "95th percentile database query time is {{ $value }}s"
+
+      # Redis operation time high
+      - alert: HighRedisOperationTime
+        expr: histogram_quantile(0.95, rate(ddv_redis_operation_duration_seconds_bucket[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis operation time"
+          description: "95th percentile Redis operation time is {{ $value }}s"
+
+      # JWT token expiration rate high
+      - alert: HighJWTTokenExpirationRate
+        expr: rate(ddv_jwt_tokens_expired_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High JWT token expiration rate"
+          description: "JWT token expiration rate is {{ $value }} per second"
+
+      # Permission check failures
+      - alert: PermissionCheckFailures
+        expr: rate(ddv_permission_checks_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Permission check failures"
+          description: "Permission check failure rate is {{ $value }} per second"
+
+      # File system errors
+      - alert: FileSystemErrors
+        expr: rate(node_filesystem_readonly[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "File system errors"
+          description: "File system is read-only on {{ $labels.instance }}"
+
+      # Network errors
+      - alert: NetworkErrors
+        expr: rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network errors"
+          description: "Network errors detected on {{ $labels.instance }} interface {{ $labels.device }}"

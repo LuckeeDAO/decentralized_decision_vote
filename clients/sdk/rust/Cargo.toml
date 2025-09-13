@@ -1,0 +1,19 @@
+[package]
+name = "vote-sdk"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Rust SDK for the decentralized decision vote system"
+
+[dependencies]
+shared-types = { path = "../../../shared/types" }
+shared-utils = { path = "../../../shared/utils" }
+
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { version = "0.11", features = ["json"] }
+thiserror = { workspace = true }
+anyhow = { workspace = true }

@@ -1,0 +1,224 @@
+# Jaeger configuration for DDV system
+
+collector:
+  grpc:
+    host-port: ":14250"
+  http:
+    host-port: ":14268"
+  zipkin:
+    host-port: ":9411"
+  otlp:
+    grpc:
+      host-port: ":4317"
+    http:
+      host-port: ":4318"
+  sampling:
+    strategies:
+      - type: "probabilistic"
+        param: 0.1
+      - type: "rateLimiting"
+        param: 100
+      - type: "perOperation"
+        param: 0.1
+        maxTracesPerSecond: 1000
+        operationBlacklist: "health,metrics"
+  tags:
+    ddv.service: "jaeger-collector"
+    ddv.environment: "production"
+
+query:
+  grpc:
+    host-port: ":16685"
+  http:
+    host-port: ":16686"
+  tags:
+    ddv.service: "jaeger-query"
+    ddv.environment: "production"
+
+agent:
+  grpc:
+    host-port: ":14250"
+  http:
+    host-port: ":14268"
+  zipkin:
+    host-port: ":9411"
+  otlp:
+    grpc:
+      host-port: ":4317"
+    http:
+      host-port: ":4318"
+  sampling:
+    strategies:
+      - type: "probabilistic"
+        param: 0.1
+      - type: "rateLimiting"
+        param: 100
+  tags:
+    ddv.service: "jaeger-agent"
+    ddv.environment: "production"
+
+storage:
+  type: "elasticsearch"
+  elasticsearch:
+    server-urls: "http://elasticsearch:9200"
+    index-prefix: "jaeger"
+    tags-as-fields:
+      all: true
+      dot-replacement: "_"
+    create-index-templates: true
+    use-ilm: true
+    ilm:
+      enabled: true
+      rollover: "daily"
+      max-age: "7d"
+      max-size: "1GB"
+      max-docs: 1000000
+    bulk:
+      size: 1000
+      flush-interval: "1s"
+      workers: 1
+    timeout: "30s"
+    retry:
+      attempts: 3
+      backoff: "1s"
+    sniff:
+      enabled: false
+    health-check:
+      enabled: true
+      interval: "30s"
+      timeout: "5s"
+
+metrics:
+  backend: "prometheus"
+  prometheus:
+    host-port: ":14269"
+    metrics-path: "/metrics"
+  tags:
+    ddv.service: "jaeger-metrics"
+    ddv.environment: "production"
+
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+
+tracing:
+  enabled: true
+  sampler:
+    type: "probabilistic"
+    param: 0.1
+  reporter:
+    queue-size: 1000
+    buffer-flush-interval: "1s"
+    log-spans: false
+    local-agent-host-port: "jaeger-agent:14268"
+
+health-check:
+  enabled: true
+  port: 14269
+  path: "/health"
+
+cors:
+  allowed-origins: "*"
+  allowed-headers: "*"
+  allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+  max-age: "86400"
+
+rate-limits:
+  enabled: true
+  max-traces-per-second: 1000
+  max-spans-per-second: 10000
+
+archive:
+  enabled: false
+  storage:
+    type: "elasticsearch"
+    elasticsearch:
+      server-urls: "http://elasticsearch:9200"
+      index-prefix: "jaeger-archive"
+      create-index-templates: true
+      use-ilm: true
+      ilm:
+        enabled: true
+        rollover: "daily"
+        max-age: "30d"
+        max-size: "5GB"
+        max-docs: 10000000
+
+dependencies:
+  enabled: true
+  storage:
+    type: "elasticsearch"
+    elasticsearch:
+      server-urls: "http://elasticsearch:9200"
+      index-prefix: "jaeger-dependencies"
+      create-index-templates: true
+      use-ilm: true
+      ilm:
+        enabled: true
+        rollover: "daily"
+        max-age: "7d"
+        max-size: "1GB"
+        max-docs: 1000000
+
+span-storage:
+  type: "elasticsearch"
+  elasticsearch:
+    server-urls: "http://elasticsearch:9200"
+    index-prefix: "jaeger-spans"
+    create-index-templates: true
+    use-ilm: true
+    ilm:
+      enabled: true
+      rollover: "daily"
+      max-age: "7d"
+      max-size: "1GB"
+      max-docs: 1000000
+    tags-as-fields:
+      all: true
+      dot-replacement: "_"
+    bulk:
+      size: 1000
+      flush-interval: "1s"
+      workers: 1
+    timeout: "30s"
+    retry:
+      attempts: 3
+      backoff: "1s"
+    sniff:
+      enabled: false
+    health-check:
+      enabled: true
+      interval: "30s"
+      timeout: "5s"
+
+trace-storage:
+  type: "elasticsearch"
+  elasticsearch:
+    server-urls: "http://elasticsearch:9200"
+    index-prefix: "jaeger-traces"
+    create-index-templates: true
+    use-ilm: true
+    ilm:
+      enabled: true
+      rollover: "daily"
+      max-age: "7d"
+      max-size: "1GB"
+      max-docs: 1000000
+    tags-as-fields:
+      all: true
+      dot-replacement: "_"
+    bulk:
+      size: 1000
+      flush-interval: "1s"
+      workers: 1
+    timeout: "30s"
+    retry:
+      attempts: 3
+      backoff: "1s"
+    sniff:
+      enabled: false
+    health-check:
+      enabled: true
+      interval: "30s"
+      timeout: "5s"

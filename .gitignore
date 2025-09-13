@@ -1,0 +1,36 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+.env
+.pytest_cache/
+.dist/
+.build/
+.cache/
+/.mypy_cache/
+/.ruff_cache/
+/.pytest_cache/
+
+# local salts or temp
+*.salt
+
+# editor
+.vscode/
+.idea/
+
+# Rust target and build
+target/
+**/*.rs.bk
+
+# Documentation (excluded from GitHub)
+doc/
+*DOC*.md
+*DOCUMENTATION*.md
+*IMPLEMENTATION*.md
+*CLI_FUNCTIONALITY*.md
+*ARCHITECTURE_PROPOSAL*.md
+
+# Legacy app directory (separate git repository)
+app/

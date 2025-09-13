@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # Development database services
+  postgres-dev:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: vote_system_dev
+      POSTGRES_USER: vote_user
+      POSTGRES_PASSWORD: vote_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vote_user -d vote_system_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Development application services (with hot reload)
+  vote-api-dev:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.vote-api
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://vote_user:vote_password@postgres-dev:5432/vote_system_dev
+      - REDIS_URL=redis://redis-dev:6379
+      - RUST_LOG=debug
+      - PORT=8080
+      - RUST_BACKTRACE=1
+    volumes:
+      - ../../:/app:ro
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    command: ["cargo", "run", "--bin", "vote-api"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  notification-service-dev:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.notification-service
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgresql://vote_user:vote_password@postgres-dev:5432/vote_system_dev
+      - REDIS_URL=redis://redis-dev:6379
+      - RUST_LOG=debug
+      - PORT=8081
+      - RUST_BACKTRACE=1
+    volumes:
+      - ../../:/app:ro
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    command: ["cargo", "run", "--bin", "notification-service"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  admin-api-dev:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.admin-api
+    ports:
+      - "8082:8082"
+    environment:
+      - DATABASE_URL=postgresql://vote_user:vote_password@postgres-dev:5432/vote_system_dev
+      - REDIS_URL=redis://redis-dev:6379
+      - RUST_LOG=debug
+      - PORT=8082
+      - RUST_BACKTRACE=1
+    volumes:
+      - ../../:/app:ro
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    command: ["cargo", "run", "--bin", "admin-api"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Development tools
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-dev
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      REDIS_HOSTS: local:redis-dev:6379
+    ports:
+      - "8083:8081"
+    depends_on:
+      - redis-dev
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: vote-system-dev-network

@@ -1,0 +1,28 @@
+[package]
+name = "vote-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Command-line interface for the decentralized decision vote system"
+
+[[bin]]
+name = "vote"
+path = "src/main.rs"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-config = { path = "../../shared/config" }
+shared-logging = { path = "../../shared/logging" }
+shared-utils = { path = "../../shared/utils" }
+
+clap = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { version = "0.11", features = ["json"] }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+dirs = "5.0"

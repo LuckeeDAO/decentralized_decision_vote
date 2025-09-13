@@ -1,0 +1,27 @@
+# Kibana configuration for DDV system
+
+server.name: ddv-kibana
+server.host: "0.0.0.0"
+server.port: 5601
+server.publicBaseUrl: "http://localhost:5601"
+
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "kibana"
+
+logging.appenders.file.type: file
+logging.appenders.file.fileName: /var/log/kibana/kibana.log
+logging.appenders.file.layout.type: json
+
+logging.root.level: info
+
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+xpack.monitoring.ui.container.logstash.enabled: true
+
+xpack.security.enabled: false
+xpack.encryptedSavedObjects.encryptionKey: "ddv-kibana-encryption-key-32-chars"
+
+server.uuid: "ddv-kibana-uuid"
+path.data: /usr/share/kibana/data
+
+telemetry.enabled: false

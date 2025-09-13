@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vote-system-config
+  namespace: vote-system
+data:
+  # Database configuration
+  DATABASE_URL: "postgresql://vote_user:vote_password@postgres-service:5432/vote_system"
+  REDIS_URL: "redis://redis-service:6379"
+  
+  # Application configuration
+  RUST_LOG: "info"
+  PORT: "8080"
+  
+  # Security configuration
+  JWT_SECRET: "your-jwt-secret-key"
+  API_KEY_SECRET: "your-api-key-secret"
+  
+  # Feature flags
+  ENABLE_WEBSOCKET: "true"
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "true"
+  
+  # Rate limiting
+  RATE_LIMIT_REQUESTS: "100"
+  RATE_LIMIT_WINDOW: "60"
+  
+  # Timeout configuration
+  REQUEST_TIMEOUT: "30"
+  DATABASE_TIMEOUT: "10"
+  REDIS_TIMEOUT: "5"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: vote-system
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream vote_api {
+            server vote-api-service:8080;
+        }
+        
+        upstream notification_service {
+            server notification-service:8081;
+        }
+        
+        upstream admin_api {
+            server admin-api-service:8082;
+        }
+        
+        limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=admin:10m rate=5r/s;
+        
+        server {
+            listen 80;
+            server_name _;
+            
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+            
+            location /api/v1/votes {
+                limit_req zone=api burst=20 nodelay;
+                proxy_pass http://vote_api;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+            
+            location /api/v1/notifications {
+                limit_req zone=api burst=20 nodelay;
+                proxy_pass http://notification_service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+            
+            location /api/v1/admin {
+                limit_req zone=admin burst=10 nodelay;
+                proxy_pass http://admin_api;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+            
+            location /ws {
+                proxy_pass http://vote_api;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_read_timeout 86400;
+            }
+        }
+    }

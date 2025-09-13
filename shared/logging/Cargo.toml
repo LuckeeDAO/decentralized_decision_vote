@@ -1,0 +1,13 @@
+[package]
+name = "shared-logging"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Logging utilities for the decentralized decision vote system"
+
+[dependencies]
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+shared-config = { path = "../config" }

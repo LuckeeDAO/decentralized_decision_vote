@@ -1,0 +1,48 @@
+[package]
+name = "notification-service"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Notification service for the decentralized decision vote system"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-config = { path = "../../shared/config" }
+shared-logging = { path = "../../shared/logging" }
+
+# Web framework
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# HTTP client
+reqwest = { version = "0.11", features = ["json"] }
+
+# Email
+lettre = { version = "0.11", default-features = false, features = ["tokio1-rustls-tls", "smtp-transport", "builder"] }
+
+# UUID
+uuid = { workspace = true, features = ["v4", "serde"] }
+
+# Time
+chrono = { workspace = true, features = ["serde"] }
+
+# WebSocket
+futures-util = "0.3"

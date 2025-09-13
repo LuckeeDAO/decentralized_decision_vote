@@ -1,0 +1,67 @@
+[workspace]
+members = [
+    # Services
+    "services/vote-api",
+    "services/notification-service", 
+    "services/admin-api",
+    
+    # Core
+    "core/vote-engine",
+    "core/template-system",
+    "core/commitment-engine",
+    
+    # Storage
+    "storage/vote-store",
+    "storage/config-store",
+    "storage/event-store",
+    
+    # Shared
+    "shared/types",
+    "shared/config",
+    "shared/utils",
+    "shared/logging",
+    
+    # Clients
+    "clients/cli",
+    "clients/sdk/rust",
+]
+
+resolver = "2"
+
+[workspace.dependencies]
+# 核心依赖
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "sync"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
+
+# Web 框架
+axum = { version = "0.7", features = ["macros", "ws"] }
+tower = "0.5"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# 数据库
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "postgres"] }
+redis = { version = "0.24", features = ["tokio-comp"] }
+
+# 加密
+sha2 = "0.10"
+hex = "0.4"
+
+# 其他
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4", features = ["derive"] }
+async-trait = "0.1"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Luckee DAO Team"]
+license = "MIT"
+repository = "https://github.com/luckee-dao/decentralized_decision_vote"
+description = "Decentralized Decision Vote System - Microservices Architecture"

@@ -1,0 +1,20 @@
+[package]
+name = "vote-store"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Storage layer for vote data with multiple backend support"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-config = { path = "../../shared/config" }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true, features = ["chrono"] }
+chrono = { workspace = true, features = ["serde"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }

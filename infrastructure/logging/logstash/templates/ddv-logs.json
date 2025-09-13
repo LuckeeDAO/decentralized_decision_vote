@@ -1,0 +1,84 @@
+{
+  "index_patterns": ["ddv-logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1,
+      "index.lifecycle.name": "ddv-logs-policy",
+      "index.lifecycle.rollover_alias": "ddv-logs"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "message": {
+          "type": "text",
+          "analyzer": "standard"
+        },
+        "level": {
+          "type": "keyword"
+        },
+        "log_level": {
+          "type": "keyword"
+        },
+        "service": {
+          "type": "keyword"
+        },
+        "service_name": {
+          "type": "keyword"
+        },
+        "request_id": {
+          "type": "keyword"
+        },
+        "client_ip": {
+          "type": "ip"
+        },
+        "verb": {
+          "type": "keyword"
+        },
+        "path": {
+          "type": "keyword"
+        },
+        "http_version": {
+          "type": "keyword"
+        },
+        "response_code": {
+          "type": "integer"
+        },
+        "bytes": {
+          "type": "integer"
+        },
+        "log_type": {
+          "type": "keyword"
+        },
+        "environment": {
+          "type": "keyword"
+        },
+        "cluster": {
+          "type": "keyword"
+        },
+        "host": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            },
+            "ip": {
+              "type": "ip"
+            }
+          }
+        },
+        "tags": {
+          "type": "keyword"
+        },
+        "fields": {
+          "properties": {
+            "service": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}

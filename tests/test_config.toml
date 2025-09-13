@@ -1,0 +1,83 @@
+# 单目标决策测试配置文件
+
+[test_suites]
+# 基础功能测试
+basic_tests = true
+# 性能测试
+performance_tests = true
+# 端到端测试
+e2e_tests = true
+# 压力测试
+stress_tests = false
+
+[participant_scales]
+# 小规模测试
+small_scale = [3, 5, 10]
+# 中等规模测试
+medium_scale = [50, 100]
+# 大规模测试
+large_scale = [500, 1000]
+# 超大规模测试（仅在压力测试中启用）
+xlarge_scale = [5000, 10000]
+
+[performance_requirements]
+# 小规模性能要求（毫秒）
+small_scale_max_time_ms = 50
+small_scale_min_success_rate = 95.0
+
+# 中等规模性能要求（毫秒）
+medium_scale_max_time_ms = 200
+medium_scale_min_success_rate = 95.0
+
+# 大规模性能要求（毫秒）
+large_scale_max_time_ms = 1000
+large_scale_min_success_rate = 90.0
+
+# 超大规模性能要求（毫秒）
+xlarge_scale_max_time_ms = 5000
+xlarge_scale_min_success_rate = 85.0
+
+[randomness_quality]
+# 随机性质量要求
+min_entropy_score = 0.8
+min_distribution_uniformity = 0.9
+max_correlation_threshold = 0.1
+
+[concurrent_testing]
+# 并发测试配置
+max_concurrent_sessions = 10
+concurrent_test_duration_seconds = 30
+max_memory_usage_mb = 512
+
+[data_persistence]
+# 数据持久化测试
+enable_disk_persistence = true
+test_data_directory = "./test_data"
+cleanup_after_tests = true
+
+[error_handling]
+# 错误处理测试
+test_invalid_participants = true
+test_commitment_mismatch = true
+test_timeout_scenarios = true
+test_malformed_data = true
+
+[verification]
+# 验证测试
+enable_proof_generation = true
+enable_proof_verification = true
+enable_audit_trail = true
+
+[logging]
+# 日志配置
+log_level = "info"
+enable_detailed_logging = true
+log_file = "./test_results/test.log"
+
+[reporting]
+# 测试报告配置
+generate_html_report = true
+generate_json_report = true
+report_directory = "./test_results"
+include_performance_metrics = true
+include_randomness_analysis = true

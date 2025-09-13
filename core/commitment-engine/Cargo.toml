@@ -1,0 +1,23 @@
+[package]
+name = "commitment-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Commitment scheme engine for secure vote commitments"
+
+[dependencies]
+shared-types = { path = "../../shared/types" }
+shared-utils = { path = "../../shared/utils" }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

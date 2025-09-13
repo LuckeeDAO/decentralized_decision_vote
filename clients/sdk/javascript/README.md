@@ -189,6 +189,20 @@ The SDK provides comprehensive TypeScript types for all data structures:
 
 The SDK works in both Node.js and browser environments. For browser usage, make sure to include the necessary polyfills for WebSocket and crypto functionality.
 
+## 服务端配置
+
+确保服务端正在运行：
+
+```bash
+# 启动单体服务端
+cd ../../service
+cargo run
+
+# 或启动微服务架构
+cd ../../infrastructure/docker
+docker-compose up -d
+```
+
 ## License
 
 MIT

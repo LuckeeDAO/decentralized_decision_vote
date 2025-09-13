@@ -1,107 +1,140 @@
+# 去中心化投票系统 CI/CD 流水线
+# 支持单体架构(service/)和微服务架构(services/)的自动化测试、构建和部署
 name: CI/CD Pipeline
 
+# 触发条件：当代码推送到主分支或开发分支，或创建PR时触发
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop ]  # 主分支和开发分支
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop ]  # 向主分支或开发分支创建PR
 
+# 全局环境变量
 env:
-  CARGO_TERM_COLOR: always
-  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always  # 启用Cargo彩色输出
+  RUST_BACKTRACE: 1         # 启用Rust错误堆栈跟踪
 
 jobs:
-  # Code quality checks
+  # ===========================================
+  # 代码质量检查作业
+  # 检查代码格式、代码质量和文档生成
+  # ===========================================
   lint:
     name: Lint and Format Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # 使用最新的Ubuntu系统
     steps:
+    # 检出代码到工作空间
     - uses: actions/checkout@v4
     
+    # 安装Rust工具链，包含rustfmt和clippy
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        components: rustfmt, clippy
+        components: rustfmt, clippy  # 代码格式化和代码质量检查工具
     
+    # 缓存Cargo注册表，加速依赖下载
     - name: Cache cargo registry
       uses: actions/cache@v3
       with:
         path: ~/.cargo/registry
         key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存Cargo索引，加速Git依赖下载
     - name: Cache cargo index
       uses: actions/cache@v3
       with:
         path: ~/.cargo/git
         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存构建目录，加速重复构建
     - name: Cache cargo build
       uses: actions/cache@v3
       with:
         path: target
         key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
     
+    # 检查代码格式是否符合rustfmt标准
     - name: Check formatting
       run: cargo fmt --all -- --check
     
+    # 运行clippy进行代码质量检查，禁止警告
     - name: Run clippy
       run: cargo clippy --all-targets --all-features -- -D warnings
     
+    # 检查文档是否能正常生成
     - name: Check documentation
       run: cargo doc --no-deps --all
 
-  # Security audit
+  # ===========================================
+  # 安全审计作业
+  # 检查项目依赖中是否存在已知的安全漏洞
+  # ===========================================
   security:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 安装Rust工具链
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
     
+    # 安装cargo-audit安全审计工具
     - name: Install cargo-audit
       run: cargo install cargo-audit
     
+    # 运行安全审计，检查依赖漏洞
     - name: Run security audit
       run: cargo audit
 
-  # Unit tests
+  # ===========================================
+  # 单元测试作业
+  # 运行所有单元测试并生成测试覆盖率报告
+  # ===========================================
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 安装Rust工具链
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
     
+    # 缓存Cargo注册表
     - name: Cache cargo registry
       uses: actions/cache@v3
       with:
         path: ~/.cargo/registry
         key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存Cargo索引
     - name: Cache cargo index
       uses: actions/cache@v3
       with:
         path: ~/.cargo/git
         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存构建目录
     - name: Cache cargo build
       uses: actions/cache@v3
       with:
         path: target
         key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
     
+    # 运行所有单元测试（包括service/和services/目录下的测试）
     - name: Run tests
       run: cargo test --all
     
+    # 生成测试覆盖率报告
     - name: Generate test coverage
       run: |
-        cargo install cargo-tarpaulin
-        cargo tarpaulin --out Xml --output-dir coverage/
+        cargo install cargo-tarpaulin  # 安装覆盖率工具
+        cargo tarpaulin --out Xml --output-dir coverage/  # 生成XML格式的覆盖率报告
     
+    # 上传覆盖率报告到Codecov平台
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -109,11 +142,15 @@ jobs:
         flags: unittests
         name: codecov-umbrella
 
-  # Integration tests
+  # ===========================================
+  # 集成测试作业
+  # 启动数据库服务，运行端到端集成测试
+  # ===========================================
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-latest
     services:
+      # PostgreSQL数据库服务，用于数据存储测试
       postgres:
         image: postgres:15
         env:
@@ -127,6 +164,7 @@ jobs:
         ports:
           - 5432:5432
       
+      # Redis缓存服务，用于缓存和会话管理测试
       redis:
         image: redis:7
         options: >-
@@ -138,56 +176,69 @@ jobs:
           - 6379:6379
     
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 安装Rust工具链
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
     
+    # 缓存Cargo注册表
     - name: Cache cargo registry
       uses: actions/cache@v3
       with:
         path: ~/.cargo/registry
         key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存Cargo索引
     - name: Cache cargo index
       uses: actions/cache@v3
       with:
         path: ~/.cargo/git
         key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
     
+    # 缓存构建目录
     - name: Cache cargo build
       uses: actions/cache@v3
       with:
         path: target
         key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
     
+    # 运行集成测试，测试服务间交互和数据库连接
     - name: Run integration tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-        REDIS_URL: redis://localhost:6379
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db  # 数据库连接字符串
+        REDIS_URL: redis://localhost:6379  # Redis连接字符串
       run: cargo test --test integration --all
 
-  # Build and test Docker images
+  # ===========================================
+  # Docker构建和测试作业
+  # 构建微服务架构的Docker镜像并验证
+  # ===========================================
   docker:
     name: Docker Build and Test
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [lint, test]  # 依赖代码质量检查和单元测试通过
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 设置Docker Buildx，支持多平台构建
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
+    # 构建投票API服务镜像
     - name: Build vote-api image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: ./infrastructure/docker/Dockerfile.vote-api
-        push: false
+        push: false  # 不推送到镜像仓库，仅本地测试
         tags: luckee-dao/vote-api:test
-        cache-from: type=gha
+        cache-from: type=gha  # 使用GitHub Actions缓存
         cache-to: type=gha,mode=max
     
+    # 构建通知服务镜像
     - name: Build notification-service image
       uses: docker/build-push-action@v5
       with:
@@ -198,6 +249,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
+    # 构建管理API服务镜像
     - name: Build admin-api image
       uses: docker/build-push-action@v5
       with:
@@ -208,127 +260,163 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
+    # 测试Docker镜像是否能正常启动
     - name: Test Docker images
       run: |
         docker run --rm luckee-dao/vote-api:test --help
         docker run --rm luckee-dao/notification-service:test --help
         docker run --rm luckee-dao/admin-api:test --help
 
-  # JavaScript SDK tests
+  # ===========================================
+  # JavaScript SDK测试作业
+  # 测试JavaScript/TypeScript SDK的功能
+  # ===========================================
   js-sdk-test:
     name: JavaScript SDK Tests
     runs-on: ubuntu-latest
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 设置Node.js环境，版本18
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
+        cache: 'npm'  # 启用npm缓存
         cache-dependency-path: clients/sdk/javascript/package-lock.json
     
+    # 安装依赖
     - name: Install dependencies
       working-directory: clients/sdk/javascript
       run: npm ci
     
+    # 运行代码质量检查
     - name: Run linting
       working-directory: clients/sdk/javascript
       run: npm run lint
     
+    # 运行单元测试
     - name: Run tests
       working-directory: clients/sdk/javascript
       run: npm test
     
+    # 构建SDK包
     - name: Build package
       working-directory: clients/sdk/javascript
       run: npm run build
 
-  # Python SDK tests
+  # ===========================================
+  # Python SDK测试作业
+  # 测试Python SDK的功能和代码质量，支持多个Python版本
+  # ===========================================
   python-sdk-test:
     name: Python SDK Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10', '3.11', '3.12']
+        python-version: [3.8, 3.9, '3.10', '3.11', '3.12']  # 支持多个Python版本
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 设置Python环境，使用矩阵策略测试多个版本
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     
+    # 安装依赖
     - name: Install dependencies
       working-directory: clients/sdk/python
       run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
+        python -m pip install --upgrade pip  # 升级pip到最新版本
+        pip install -e ".[dev]"  # 安装开发依赖
     
+    # 运行代码质量检查
     - name: Run linting
       working-directory: clients/sdk/python
       run: |
-        flake8 src/
-        black --check src/
-        isort --check-only src/
+        flake8 src/              # 代码风格检查
+        black --check src/       # 代码格式化检查
+        isort --check-only src/  # 导入排序检查
     
+    # 运行类型检查
     - name: Run type checking
       working-directory: clients/sdk/python
       run: mypy src/
     
+    # 运行单元测试
     - name: Run tests
       working-directory: clients/sdk/python
       run: pytest
 
-  # Performance tests
+  # ===========================================
+  # 性能测试作业
+  # 运行基准测试，仅在主分支推送时执行
+  # ===========================================
   performance:
     name: Performance Tests
     runs-on: ubuntu-latest
-    needs: [docker]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [docker]  # 依赖Docker构建完成
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # 仅主分支推送时运行
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 安装Rust工具链
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
     
+    # 运行基准测试
     - name: Run benchmarks
       run: cargo bench --all
     
+    # 上传基准测试结果作为构建产物
     - name: Upload benchmark results
       uses: actions/upload-artifact@v3
       with:
         name: benchmark-results
         path: target/criterion/
 
-  # Deploy to staging
+  # ===========================================
+  # 测试环境部署作业
+  # 部署到测试环境，仅在develop分支推送时执行
+  # ===========================================
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [lint, test, integration-test, docker]
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
+    needs: [lint, test, integration-test, docker]  # 依赖所有基础检查通过
+    if: github.ref == 'refs/heads/develop'  # 仅develop分支推送时运行
+    environment: staging  # 使用staging环境配置
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 部署到测试环境
     - name: Deploy to staging
       run: |
         echo "Deploying to staging environment..."
-        # Add actual deployment commands here
+        # 添加实际的部署命令
         # kubectl apply -f infrastructure/k8s/ --namespace=vote-system-staging
 
-  # Deploy to production
+  # ===========================================
+  # 生产环境部署作业
+  # 部署到生产环境，仅在main分支推送时执行
+  # ===========================================
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [lint, test, integration-test, docker, performance]
-    if: github.ref == 'refs/heads/main'
-    environment: production
+    needs: [lint, test, integration-test, docker, performance]  # 依赖所有检查包括性能测试
+    if: github.ref == 'refs/heads/main'  # 仅main分支推送时运行
+    environment: production  # 使用production环境配置
     steps:
+    # 检出代码
     - uses: actions/checkout@v4
     
+    # 部署到生产环境
     - name: Deploy to production
       run: |
         echo "Deploying to production environment..."
-        # Add actual deployment commands here
+        # 添加实际的部署命令
         # kubectl apply -f infrastructure/k8s/ --namespace=vote-system

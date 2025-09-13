@@ -2,6 +2,12 @@
 
 本测试套件专门用于测试基于比特承诺模型的去中心化随机数生成系统，实现从n个参与者中选出1个中奖人的功能。
 
+## 测试架构说明
+
+本测试套件支持两种服务端架构：
+- **单体服务端** (`service/`)：集成测试和端到端测试
+- **微服务架构** (`services/`)：分布式系统测试
+
 ## 测试架构
 
 ### 测试层次结构
@@ -129,6 +135,15 @@ tests/
 
 ### 运行所有测试
 ```bash
+# 单体服务端测试
+cd service
+cargo test
+
+# 微服务架构测试
+cd services/vote-api
+cargo test
+
+# 集成测试
 ./tests/run_single_target_tests.sh
 ```
 
@@ -142,6 +157,10 @@ cargo test --test single_target_performance_tests
 
 # 端到端测试
 cargo test --test single_target_e2e_tests
+
+# 微服务测试
+cd services/vote-api
+cargo test --test integration_tests
 ```
 
 ### 运行特定测试

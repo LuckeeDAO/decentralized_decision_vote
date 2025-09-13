@@ -237,6 +237,20 @@ isort src/
 mypy src/
 ```
 
+## 服务端配置
+
+确保服务端正在运行：
+
+```bash
+# 启动单体服务端
+cd ../../service
+cargo run
+
+# 或启动微服务架构
+cd ../../infrastructure/docker
+docker-compose up -d
+```
+
 ### Testing
 
 ```bash

@@ -1,0 +1,65 @@
+[package]
+name = "blockchain-store"
+version = "0.1.0"
+edition = "2021"
+authors = ["Luckee DAO Team"]
+description = "Blockchain storage abstraction layer for decentralized decision vote system"
+
+[dependencies]
+# 核心依赖
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+tracing = { workspace = true }
+
+# 区块链相关依赖
+web3 = "0.20"
+ethers = "2.0"
+solana-client = "1.17"
+solana-sdk = "1.17"
+cosmwasm-std = "1.5"
+cosmwasm-storage = "1.5"
+
+# Archway 相关依赖
+archway-std = "0.1"
+archway-storage = "0.1"
+
+# Injective 相关依赖
+injective-std = "0.1"
+injective-storage = "0.1"
+
+# Avalanche 相关依赖
+avalanche-types = "0.1"
+avalanche-client = "0.1"
+
+# Sui 相关依赖
+sui-sdk = "1.0"
+sui-types = "1.0"
+
+# 加密和哈希
+sha2 = { workspace = true }
+hex = { workspace = true }
+secp256k1 = "0.28"
+
+# 其他
+uuid = { workspace = true }
+chrono = { workspace = true }
+url = "2.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[[example]]
+name = "usage"
+path = "examples/usage.rs"
+
+[[example]]
+name = "integration"
+path = "examples/integration.rs"
+
+[[example]]
+name = "new_blockchains"
+path = "examples/new_blockchains.rs"

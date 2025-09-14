@@ -1,0 +1,130 @@
+{
+  "default_blockchain": "Ethereum",
+  "networks": {
+    "ethereum_mainnet": {
+      "name": "Ethereum Mainnet",
+      "rpc_url": "https://mainnet.infura.io/v3/YOUR_PROJECT_ID",
+      "chain_id": 1,
+      "gas_price": "20",
+      "gas_limit": 21000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "ethereum_goerli": {
+      "name": "Ethereum Goerli Testnet",
+      "rpc_url": "https://goerli.infura.io/v3/YOUR_PROJECT_ID",
+      "chain_id": 5,
+      "gas_price": "2",
+      "gas_limit": 21000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "polygon_mainnet": {
+      "name": "Polygon Mainnet",
+      "rpc_url": "https://polygon-rpc.com",
+      "chain_id": 137,
+      "gas_price": "30",
+      "gas_limit": 21000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "solana_mainnet": {
+      "name": "Solana Mainnet",
+      "rpc_url": "https://api.mainnet-beta.solana.com",
+      "chain_id": null,
+      "gas_price": null,
+      "gas_limit": null,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "solana_devnet": {
+      "name": "Solana Devnet",
+      "rpc_url": "https://api.devnet.solana.com",
+      "chain_id": null,
+      "gas_price": null,
+      "gas_limit": null,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "cosmos_mainnet": {
+      "name": "Cosmos Hub",
+      "rpc_url": "https://rpc.cosmos.network",
+      "chain_id": null,
+      "gas_price": "0.025",
+      "gas_limit": 200000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "archway_mainnet": {
+      "name": "Archway Mainnet",
+      "rpc_url": "https://rpc.mainnet.archway.io",
+      "chain_id": null,
+      "gas_price": "0.02",
+      "gas_limit": 150000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "injective_mainnet": {
+      "name": "Injective Mainnet",
+      "rpc_url": "https://tm.injective.network",
+      "chain_id": null,
+      "gas_price": "0.03",
+      "gas_limit": 180000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "avalanche_mainnet": {
+      "name": "Avalanche C-Chain",
+      "rpc_url": "https://api.avax.network/ext/bc/C/rpc",
+      "chain_id": 43114,
+      "gas_price": "25",
+      "gas_limit": 25000,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    },
+    "sui_mainnet": {
+      "name": "Sui Mainnet",
+      "rpc_url": "https://fullnode.mainnet.sui.io:443",
+      "chain_id": null,
+      "gas_price": null,
+      "gas_limit": null,
+      "timeout_seconds": 30,
+      "retry_attempts": 3
+    }
+  },
+  "private_keys": {
+    "ethereum_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "ethereum_goerli": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "polygon_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "solana_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "cosmos_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "archway_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "injective_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "avalanche_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE",
+    "sui_mainnet": "ENCRYPTED_PRIVATE_KEY_HERE"
+  },
+  "contract_addresses": {
+    "ethereum_mainnet": "0x1234567890123456789012345678901234567890",
+    "ethereum_goerli": "0x1234567890123456789012345678901234567890",
+    "polygon_mainnet": "0x1234567890123456789012345678901234567890",
+    "solana_mainnet": "11111111111111111111111111111111",
+    "cosmos_mainnet": "cosmos1abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+    "archway_mainnet": "archway1abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+    "injective_mainnet": "inj1abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+    "avalanche_mainnet": "0x1234567890123456789012345678901234567890",
+    "sui_mainnet": "0x1234567890123456789012345678901234567890"
+  },
+  "storage": {
+    "max_data_size": 1048576,
+    "chunk_size": 32768,
+    "enable_compression": true,
+    "enable_encryption": true,
+    "backup_strategy": "Multiple"
+  },
+  "retry": {
+    "max_attempts": 3,
+    "initial_delay_ms": 1000,
+    "max_delay_ms": 10000,
+    "delay_multiplier": 2.0
+  }
+}
